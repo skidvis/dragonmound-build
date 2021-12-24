@@ -27,4 +27,9 @@ function doGreet(){
   console.log(signer);
   var gameContract = new ethers.Contract(CONTRACT,myEpicGame.abi,signer);
   //gameContract.resetHealth().then((x)=>{console.log(x)});
+  return provider.connection.url;
+}
+
+function getTime(){
+  unityInstance.SendMessage('Test', 'SetText', 'this is a test');
 }
