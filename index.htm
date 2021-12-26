@@ -6,16 +6,18 @@
     <title>Unity WebGL Player | dragsketch</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="https://unpkg.com/vue@next"></script>
     <script src="TemplateData/UnityProgress.js"></script>
     <script src="Build/UnityLoader.js"></script>
-    <script src="js/web3Connect.js"></script>
     <script src="js/ethers-5.2.umd.min.js" type="application/javascript"></script>
     <script src="js/MyEpicGame.js" type="application/javascript"></script>
+    
     <script>
       var unityInstance = UnityLoader.instantiate("unityContainer", "Build/build.json", {onProgress: UnityProgress});
     </script>
   </head>
   <body style="background-color: black;">
+    <div id="app"></div>
     <div class="webgl-content">
       <div id="unityContainer" style="width: 960px; height: 600px"></div>
       <div class="footer">
@@ -24,5 +26,6 @@
         <div class="title">dragsketch</div>
       </div>
     </div>
+    <script src="js/index.js"></script>
   </body>
 </html>
