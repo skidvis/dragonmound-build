@@ -17,7 +17,6 @@ const App = {
       try{  
         this.wallet = window.ethereum;
         console.log(this.wallet);
-        var account;
       
         if(!this.wallet){
           return;
@@ -45,14 +44,19 @@ const App = {
       const signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       console.log(app.account);
-      return;
-      let response = await gameContract.addPlayer(app.account);
-      
-      console.log(response);
-      if(response == 'you have added a player'){
-        unityInstance.SendMessage('JsListener', 'SetText', response);
-        unityInstance.SendMessage('JsListener', 'SetCube');
-      }
+      let response = await app.gameContract.addPlayer(app.account);
+      let confirmations = 0;
+
+      let interval = setInterval(async ()=>{
+        let txn_test = await provider.getTransaction(response.hash);
+        confirmations = txn_test.confirmations;
+        console.log(confirmations);
+        if(confirmations > 0) {   
+          clearInterval(interval);            
+          unityInstance.SendMessage('JsListener', 'SetText', 'Success!');
+          unityInstance.SendMessage('JsListener', 'SetCube');
+        }
+      }, 5000);
     }
   }
 }
