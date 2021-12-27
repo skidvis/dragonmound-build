@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0x6827B143e907A3dabDAc18060a368cEE95ceCb10',
+      contract: '0xC9FB51373720D91EbDA0ce45478c0C44680f8c36',
       hasWallet: false,
       gameContract: null
     }
@@ -30,7 +30,7 @@ const App = {
         });
 
         this.account = accounts[0];
-        unityInstance.SendMessage('JsListener', 'SetWalletAddress', this.account);
+        console.log('setting wallet...');        
       
         this.wallet.on("accountsChanged", function () {
           location.reload();
@@ -38,6 +38,9 @@ const App = {
       }catch(error){
         console.log(error);
       }  
+    },
+    showAddress(){
+      unityInstance.SendMessage('JsListener', 'SetWalletAddress', `Wallet: ${this.account}`);
     },
     async addPlayer(){
       const provider = new ethers.providers.Web3Provider(window.ethereum);
