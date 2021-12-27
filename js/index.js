@@ -2,7 +2,10 @@ const App = {
   data() {
     return {
       wallet: null,
-      contract: '0x2d29763b7eeb73808CA598De3474Bdaa9E8f6fB1'
+      account: null,
+      contract: '0x6827B143e907A3dabDAc18060a368cEE95ceCb10',
+      hasWallet: false,
+      gameContract: null
     }
   },
   mounted(){
@@ -10,22 +13,25 @@ const App = {
     this.checkForWallet();
   },
   methods: {
-    checkForWallet(){
+    async checkForWallet(){
       try{  
         this.wallet = window.ethereum;
         console.log(this.wallet);
         var account;
       
         if(!this.wallet){
-          alert('GetMetamask');
+          return;
         }else{
           console.log('wallet found..');
+          this.hasWallet = true;
         }
       
-        this.wallet.request({
+        let accounts = await this.wallet.request({
           method: 'eth_requestAccounts'
-        }).then((x)=>{console.log(x); account = x});
-      
+        });
+
+        this.account = accounts[0];
+        unityInstance.SendMessage('JsListener', 'SetWalletAddress', this.account);
       
         this.wallet.on("accountsChanged", function () {
           location.reload();
@@ -34,12 +40,19 @@ const App = {
         console.log(error);
       }  
     },
-    async doGreet(){
+    async addPlayer(){
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      var gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let response = await gameContract.sayHello();
-      unityInstance.SendMessage('JsListener', 'SetText', response);
+      app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
+      console.log(app.account);
+      return;
+      let response = await gameContract.addPlayer(app.account);
+      
+      console.log(response);
+      if(response == 'you have added a player'){
+        unityInstance.SendMessage('JsListener', 'SetText', response);
+        unityInstance.SendMessage('JsListener', 'SetCube');
+      }
     }
   }
 }

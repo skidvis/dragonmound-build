@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | dragsketch</title>
+    <title>DragonMound - by SharkJets</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <script src="https://unpkg.com/vue@next"></script>
@@ -15,15 +15,25 @@
     <script>
       var unityInstance = UnityLoader.instantiate("unityContainer", "Build/build.json", {onProgress: UnityProgress});
     </script>
+
+    <style type="text/css">
+      body{
+        color: white;
+      }
+    </style>
   </head>
   <body style="background-color: black;">
-    <div id="app"></div>
-    <div class="webgl-content">
-      <div id="unityContainer" style="width: 960px; height: 600px"></div>
-      <div class="footer">
-        <div class="webgl-logo"></div>
-        <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
-        <div class="title">dragsketch</div>
+    <div id="app">
+      <div v-if="!hasWallet">
+        <h1>You need <a href="https://metamask.io/">MetaMask</a> for this.</h1>
+      </div>
+      <div class="webgl-content" v-if="hasWallet">
+        <div id="unityContainer" style="width: 960px; height: 600px"></div>
+        <div class="footer">
+          <div class="webgl-logo"></div>
+          <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+          <div class="title">DragonMound</div>
+        </div>
       </div>
     </div>
     <script src="js/index.js"></script>
