@@ -47,14 +47,12 @@ const App = {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      console.log(app.account);
       let response = await app.gameContract.addPlayer(app.account);
       let confirmations = 0;
 
       let interval = setInterval(async ()=>{
         let txn_test = await provider.getTransaction(response.hash);
         confirmations = txn_test.confirmations;
-        console.log(confirmations);
         if(confirmations > 0) {   
           clearInterval(interval);            
           unityInstance.SendMessage('JsListener', 'SetText', 'Success!');
@@ -68,8 +66,13 @@ const App = {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       let gameContract = new ethers.Contract(goldmineContract,goldmineAbi,signer);
-      let res = await gameContract.balanceOf(app.account);
-      if(!new BigNumber(res._hex).isZero())unityInstance.SendMessage('JsListener', 'SetGoldMiner');;
+      gameContract.balanceOf(app.account).then(
+        (res)=>{
+          if(!new BigNumber(res._hex).isZero())unityInstance.SendMessage('JsListener', 'SetGoldMiner');;
+        },
+        (err)=>{
+          console.log('GoldMine1221 unavailable');
+        });
     }
   }
 }
