@@ -41,6 +41,7 @@ const App = {
     },
     showAddress(){
       unityInstance.SendMessage('JsListener', 'SetWalletAddress', `Wallet: ${this.account}`);
+      app.getGoldmine();
     },
     async addPlayer(){
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -60,6 +61,15 @@ const App = {
           unityInstance.SendMessage('JsListener', 'SetCube');
         }
       }, 5000);
+    }, 
+    async getGoldmine(){
+      const goldmineAbi = ["function balanceOf(address) view returns (uint)"];
+      const goldmineContract = '0x1955cCBEb9cf1Db1CEF28a03eDF826dcB3696841';
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      let gameContract = new ethers.Contract(goldmineContract,goldmineAbi,signer);
+      let res = await gameContract.balanceOf(app.account);
+      if(!new BigNumber(res._hex).isZero())unityInstance.SendMessage('JsListener', 'SetGoldMiner');;
     }
   }
 }
