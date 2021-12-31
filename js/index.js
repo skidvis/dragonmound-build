@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0xC9FB51373720D91EbDA0ce45478c0C44680f8c36',
+      contract: '0xdc79ccA5412A74aeE401B70679802f03c32807Cf',
       hasWallet: false,
       gameContract: null
     }
