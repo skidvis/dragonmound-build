@@ -58,11 +58,9 @@ const App = {
           clearInterval(interval);        
           app.getStats().then(
             (stats)=>{
-              console.log(stats);
               let level =  new BigNumber(stats.level._hex).toNumber();
               let gold =  new BigNumber(stats.gold._hex).toNumber();
               let playerstats = {level: level, gold: gold};
-              console.log(JSON.stringify(ninja));
               unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
             }, 
             (err)=>{
