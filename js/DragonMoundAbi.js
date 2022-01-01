@@ -1,5 +1,4 @@
-
-var myEpicGame = JSON.parse(`"abi": [
+var myEpicGame = JSON.parse(`{"abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -404,7 +403,7 @@ var myEpicGame = JSON.parse(`"abi": [
         "type": "address"
       }
     ],
-    "name": "returnStats",
+    "name": "getStats",
     "outputs": [
       {
         "components": [
@@ -452,4 +451,4 @@ var myEpicGame = JSON.parse(`"abi": [
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]`);
+]}`);

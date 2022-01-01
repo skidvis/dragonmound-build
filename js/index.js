@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0xdc79ccA5412A74aeE401B70679802f03c32807Cf',
+      contract: '0x2FFECE1Dd207947210C2d39398852D81B8568a25',
       hasWallet: false,
       gameContract: null
     }
@@ -29,7 +29,8 @@ const App = {
           method: 'eth_requestAccounts'
         });
 
-        this.account = accounts[0];
+        this.account = accounts[0];        
+
         console.log('setting wallet...');        
       
         this.wallet.on("accountsChanged", function () {
@@ -44,8 +45,8 @@ const App = {
       app.getGoldmine();
     },
     async addPlayer(){
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      let provider = new ethers.providers.Web3Provider(window.ethereum);
+      let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       let response = await app.gameContract.addPlayer(app.account);
       let confirmations = 0;
@@ -54,17 +55,35 @@ const App = {
         let txn_test = await provider.getTransaction(response.hash);
         confirmations = txn_test.confirmations;
         if(confirmations > 0) {   
-          clearInterval(interval);            
-          unityInstance.SendMessage('JsListener', 'SetText', 'Success!');
-          unityInstance.SendMessage('JsListener', 'SetCube');
+          clearInterval(interval);        
+          app.getStats().then(
+            (stats)=>{
+              console.log(stats);
+              let level =  new BigNumber(stats.level._hex).toNumber();
+              let gold =  new BigNumber(stats.gold._hex).toNumber();
+              let ninja = {level: level, gold: gold};
+              console.log(JSON.stringify(ninja));
+              unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(ninja));
+            }, 
+            (err)=>{
+              console.log(err);
+            }
+          );
         }
       }, 5000);
+    }, 
+    async getStats(){
+      let provider = new ethers.providers.Web3Provider(window.ethereum);
+      let signer = provider.getSigner();
+      app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
+      let response = await app.gameContract.getStats(app.account);
+      return response;
     }, 
     async getGoldmine(){
       const goldmineAbi = ["function balanceOf(address) view returns (uint)"];
       const goldmineContract = '0x1955cCBEb9cf1Db1CEF28a03eDF826dcB3696841';
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      let provider = new ethers.providers.Web3Provider(window.ethereum);
+      let signer = provider.getSigner();
       let gameContract = new ethers.Contract(goldmineContract,goldmineAbi,signer);
       gameContract.balanceOf(app.account).then(
         (res)=>{
