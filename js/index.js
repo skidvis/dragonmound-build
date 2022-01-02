@@ -48,27 +48,34 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let response = await app.gameContract.addPlayer(app.account);
-      let confirmations = 0;
+      app.gameContract.addPlayer(app.account).then(
+        (response)=>{
+          let confirmations = 0;
 
-      let interval = setInterval(async ()=>{
-        let txn_test = await provider.getTransaction(response.hash);
-        confirmations = txn_test.confirmations;
-        if(confirmations > 0) {   
-          clearInterval(interval);        
-          app.getStats().then(
-            (stats)=>{
-              let level =  new BigNumber(stats.level._hex).toNumber();
-              let gold =  new BigNumber(stats.gold._hex).toNumber();
-              let playerstats = {level: level, gold: gold};
-              unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
-            }, 
-            (err)=>{
-              console.log(err);
+          let interval = setInterval(async ()=>{
+            let txn_test = await provider.getTransaction(response.hash);
+            confirmations = txn_test.confirmations;
+            if(confirmations > 0) {   
+              clearInterval(interval);        
+              app.getStats().then(
+                (stats)=>{
+                  let level =  new BigNumber(stats.level._hex).toNumber();
+                  let gold =  new BigNumber(stats.gold._hex).toNumber();
+                  let playerstats = {level: level, gold: gold};
+                  unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
+                }, 
+                (err)=>{
+                  console.log(err);
+                }
+              );
             }
-          );
+          }, 5000);
+        },
+        (err)=>{
+          console.log('error');
+          unityInstance.SendMessage('JsListener', 'ResetStart');
         }
-      }, 5000);
+      );
     }, 
     async getStats(){
       let provider = new ethers.providers.Web3Provider(window.ethereum);
