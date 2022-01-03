@@ -82,7 +82,6 @@ const App = {
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       let response = await app.gameContract.getStats();
-      app.gameContract.getPlayerLevel(app.account).then((lvl)=>{console.log(lvl)});
       return response;
     }, 
     async getPlayerLevel(){
