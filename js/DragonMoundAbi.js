@@ -396,13 +396,7 @@ var myEpicGame = JSON.parse(`{"abi": [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "name": "getStats",
     "outputs": [
       {
@@ -421,6 +415,11 @@ var myEpicGame = JSON.parse(`{"abi": [
             "internalType": "uint256",
             "name": "gold",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasWon",
+            "type": "bool"
           }
         ],
         "internalType": "struct DragonMound.gameData",
@@ -435,19 +434,70 @@ var myEpicGame = JSON.parse(`{"abi": [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "currentLevel",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentGold",
+        "type": "uint256"
       }
     ],
-    "name": "addPlayer",
+    "name": "levelUp",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLevelUp",
     "outputs": [
       {
-        "internalType": "string",
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "currentLevel",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "currentGold",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DragonMound.levelData",
         "name": "",
-        "type": "string"
+        "type": "tuple"
       }
     ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [],
+    "name": "addPlayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newGoldAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setDefaultGold",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }

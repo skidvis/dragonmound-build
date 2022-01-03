@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0x2FFECE1Dd207947210C2d39398852D81B8568a25',
+      contract: '0x8734489eF1053D709b7607E0fa5236f131f23044',
       hasWallet: false,
       gameContract: null
     }
@@ -48,7 +48,7 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      app.gameContract.addPlayer(app.account).then(
+      app.gameContract.addPlayer().then(
         (response)=>{
           let confirmations = 0;
 
@@ -81,7 +81,7 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let response = await app.gameContract.getStats(app.account);
+      let response = await app.gameContract.getStats();
       return response;
     }, 
     async getGoldmine(){
@@ -97,6 +97,38 @@ const App = {
         (err)=>{
           console.log('GoldMine1221 unavailable');
         });
+    },
+    async setWin(level, gold){
+      let provider = new ethers.providers.Web3Provider(window.ethereum);
+      let signer = provider.getSigner();
+      app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
+      app.gameContract.levelUp(level, gold).then(
+        (response)=>{
+          let confirmations = 0;
+
+          let interval = setInterval(async ()=>{
+            let txn_test = await provider.getTransaction(response.hash);
+            confirmations = txn_test.confirmations;
+            if(confirmations > 0) {   
+              clearInterval(interval);        
+              app.getStats().then(
+                (stats)=>{
+                  let level =  new BigNumber(stats.level._hex).toNumber();
+                  let gold =  new BigNumber(stats.gold._hex).toNumber();
+                  let playerstats = {level: level, gold: gold};
+                  unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
+                }, 
+                (err)=>{
+                  console.log(err);
+                }
+              );
+            }
+          }, 5000);
+        },
+        (err)=>{
+          console.log(err);
+        }
+      );
     }
   }
 }
