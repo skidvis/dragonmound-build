@@ -184,7 +184,7 @@ const App = {
       try {
           await ethereum.request({
               method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x13881' }], // Hexadecimal version of 80001, prefixed with 0x
+              params: [{ chainId: '0x89' }], // Hexadecimal version of 80001, prefixed with 0x
           });
       } catch (error) {
           if (error.code === 4902) {
@@ -192,7 +192,7 @@ const App = {
                   await ethereum.request({
                       method: 'wallet_addEthereumChain',
                       params: [{ 
-                          chainId: '0x13881', // Hexadecimal version of 80001, prefixed with 0x
+                          chainId: '0x89', // Hexadecimal version of 80001, prefixed with 0x
                           chainName: "POLYGON Mainnet",
                           nativeCurrency: {
                               name: "MATIC",
