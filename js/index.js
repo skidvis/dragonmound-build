@@ -54,20 +54,11 @@ const App = {
 
           let interval = setInterval(async ()=>{
             let txn_test = await provider.getTransaction(response.hash);
-            confirmations = txn_test.confirmations;
+            if(txn_test && txn_test.confirmations) confirmations = txn_test.confirmations;
+            
             if(confirmations > 0) {   
               clearInterval(interval);                      
-              app.getStats().then(
-                (stats)=>{
-                  let level =  new BigNumber(stats.level._hex).toNumber();
-                  let gold =  new BigNumber(stats.gold._hex).toNumber();
-                  let playerstats = {level: level, gold: gold};
-                  unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
-                }, 
-                (err)=>{
-                  console.log(err);
-                }
-              );
+              app.getStats();
             }
           }, 2000);
         },
@@ -81,8 +72,19 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let response = await app.gameContract.getStats();      
-      return response;
+      app.gameContract.getStats().then(
+        (stats)=>{
+          let level =  new BigNumber(stats.level._hex).toNumber();
+          let gold =  new BigNumber(stats.gold._hex).toNumber();
+          let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
+          let mintId =  new BigNumber(stats.mintId._hex).toNumber();
+          let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
+          unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
+        }, 
+        (err)=>{
+          console.log(err);
+        }
+      );      
     }, 
     async getPlayerLevel(){
       let provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -156,22 +158,11 @@ const App = {
 
           let interval = setInterval(async ()=>{
             let txn_test = await provider.getTransaction(response.hash);
-            confirmations = txn_test.confirmations;
+            if(txn_test && txn_test.confirmations) confirmations = txn_test.confirmations;
+
             if(confirmations > 0) {   
               clearInterval(interval);                      
-              app.getStats().then(
-                (stats)=>{
-                  let level =  new BigNumber(stats.level._hex).toNumber();
-                  let gold =  new BigNumber(stats.gold._hex).toNumber();
-                  let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
-                  let mintId =  new BigNumber(stats.mintId._hex).toNumber();
-                  let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
-                  unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
-                }, 
-                (err)=>{
-                  console.log(err);
-                }
-              );
+              app.getStats();
             }
           }, 2000);
         },
