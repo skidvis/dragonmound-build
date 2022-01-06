@@ -29,9 +29,10 @@
         <h1>You need <a href="https://metamask.io/">MetaMask</a> for this.</h1>
       </div>
       <div class="webgl-content" v-if="hasWallet">
-        <div id="unityContainer" style="width: 960px; height: 600px"></div>
+        <div id="unityContainer" style="width: 960px; height: 600px"></div>        
         <div class="footer">
-          <div class="webgl-logo"></div>
+          <div v-if="mintId == 0" class="webgl-logo"></div>
+          <div v-if="mintId != 0" style="float: left;"><a style="color: white;" v-bind:href="'https://opensea.io/assets/' + contract + '/' + mintId">View your NFT on OpenSea!</a></div>
           <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
           <div class="title">DragonMound</div>
         </div>

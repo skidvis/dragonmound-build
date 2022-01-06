@@ -3,7 +3,8 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0x53cAd816c136C714Ab0A3DF1b6298221F565D658',
+      contract: '0xE6D847406b5E516f890c989052ee38315595Efb7',
+      mintId: 0,
       hasWallet: false,
       gameContract: null
     }
@@ -30,6 +31,7 @@ const App = {
         });
 
         this.account = accounts[0];        
+        this.checkMint();
 
         console.log('setting wallet...');        
       
@@ -81,7 +83,7 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let response = await app.gameContract.getStats();
+      let response = await app.gameContract.getStats();      
       return response;
     }, 
     async getPlayerLevel(){
@@ -106,31 +108,45 @@ const App = {
         });
     },
     async checkMint(){
-      const goldmineAbi = ["function balanceOf(address) view returns (uint)"];
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       let gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      gameContract.balanceOf(app.account).then(
+      gameContract.getMintId().then(
         (res)=>{
-          console.log(BigNumber(res._hex).toNumber());
+          this.mintId = BigNumber(res._hex).toNumber();
+          console.log(this.mintId);
         },
         (err)=>{
           console.log('Not Minted');
         });
     }, 
     async mintyFresh(){
-      const goldmineAbi = ["function balanceOf(address) view returns (uint)"];
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       let gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       let cost = await gameContract.getCost();
       gameContract.mintyFresh({value: cost}).then(
-        (res)=>{
-          unityInstance.SendMessage('JsListener', 'MintSuccess');
-          console.log(res);
+        (response)=>{
+          let confirmations = 0;
+
+          let interval = setInterval(async ()=>{
+            let txn_test = await provider.getTransaction(response.hash);
+            confirmations = txn_test.confirmations;
+            if(confirmations > 0) {   
+              clearInterval(interval);              
+              app.getStats().then(
+                (stats)=>{
+                  unityInstance.SendMessage('JsListener', 'MintSuccess');
+                }, 
+                (err)=>{
+                  console.log(err);
+                }
+              );
+            }
+          }, 2000);
         },
         (err)=>{
-          console.log('Not Minted');
+          console.log(err);
         });
     },        
     async setWin(level, gold){
@@ -151,7 +167,9 @@ const App = {
                   let level =  new BigNumber(stats.level._hex).toNumber();
                   let gold =  new BigNumber(stats.gold._hex).toNumber();
                   let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
-                  let playerstats = {level: level, gold: gold, hasWon: hasWon};
+                  let mintId =  new BigNumber(stats.mintId._hex).toNumber();
+                  console.log(mintId);
+                  let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
                   unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
                 }, 
                 (err)=>{

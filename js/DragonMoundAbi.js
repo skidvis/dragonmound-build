@@ -511,6 +511,20 @@ var myEpicGame = JSON.parse(`{"abi": [
   },
   {
     "inputs": [],
+    "name": "getMintId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [],
     "name": "getStats",
     "outputs": [
       {
@@ -533,6 +547,11 @@ var myEpicGame = JSON.parse(`{"abi": [
           {
             "internalType": "uint256",
             "name": "hasWon",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mintId",
             "type": "uint256"
           }
         ],
