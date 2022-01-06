@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0xE6D847406b5E516f890c989052ee38315595Efb7',
+      contract: '0x3899D6E56051B15e5662f7A47d2D9Ce8FBE6c8B6',
       mintId: 0,
       hasWallet: false,
       gameContract: null
@@ -17,7 +17,6 @@ const App = {
     async checkForWallet(){
       try{  
         this.wallet = window.ethereum;
-        console.log(this.wallet);
       
         if(!this.wallet){
           return;
@@ -31,9 +30,8 @@ const App = {
         });
 
         this.account = accounts[0];        
+        this.addPolygonNetwork();
         this.checkMint();
-
-        console.log('setting wallet...');        
       
         this.wallet.on("accountsChanged", function () {
           location.reload();
@@ -114,7 +112,6 @@ const App = {
       gameContract.getMintId().then(
         (res)=>{
           this.mintId = BigNumber(res._hex).toNumber();
-          console.log(this.mintId);
         },
         (err)=>{
           console.log('Not Minted');
@@ -168,7 +165,6 @@ const App = {
                   let gold =  new BigNumber(stats.gold._hex).toNumber();
                   let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
                   let mintId =  new BigNumber(stats.mintId._hex).toNumber();
-                  console.log(mintId);
                   let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
                   unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
                 }, 
@@ -183,7 +179,38 @@ const App = {
           console.log(err);
         }
       );
-    }
+    },
+    async addPolygonNetwork(){
+      try {
+          await ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x13881' }], // Hexadecimal version of 80001, prefixed with 0x
+          });
+      } catch (error) {
+          if (error.code === 4902) {
+              try {
+                  await ethereum.request({
+                      method: 'wallet_addEthereumChain',
+                      params: [{ 
+                          chainId: '0x13881', // Hexadecimal version of 80001, prefixed with 0x
+                          chainName: "POLYGON Mainnet",
+                          nativeCurrency: {
+                              name: "MATIC",
+                              symbol: "MATIC",
+                              decimals: 18,
+                          },
+                          rpcUrls: ["https://polygon-rpc.com/"],
+                          blockExplorerUrls: ["https://polygonscan.com/"],
+                          iconUrls: [""],
+                  
+                      }],
+                  });
+              } catch (addError){
+                  console.log('Did not add network');
+              }
+          }
+      }
+  }
   }
 }
 

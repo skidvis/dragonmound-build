@@ -12,6 +12,7 @@
     <script src="js/ethers-5.2.umd.min.js" type="application/javascript"></script>
     <script src="js/bignumber.js"></script>
     <script src="js/DragonMoundAbi.js" type="application/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     
     <script>
       var unityInstance = UnityLoader.instantiate("unityContainer", "Build/dragonMound-web.json", {onProgress: UnityProgress});
@@ -21,21 +22,51 @@
       body{
         color: white;
       }
+
+      li{
+        padding:5px !important;
+        list-style-type: none;
+      }
+
+      #unityContainer{
+        margin:auto !important;
+      }
     </style>
   </head>
-  <body style="background-color: black;">
+  <body style="background-color: black; color: white;">
     <div id="app">
       <div v-if="!hasWallet">
-        <h1>You need <a href="https://metamask.io/">MetaMask</a> for this.</h1>
+        <h1><a style="color:darkorange" href="https://metamask.io/">MetaMask</a> is required to play this game.</h1>
+        <h2>You must also be on the <a style="color: #8247e5;" href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/">polygon</a> network.</h2>
       </div>
-      <div class="webgl-content" v-if="hasWallet">
-        <div id="unityContainer" style="width: 960px; height: 600px"></div>        
-        <div class="footer">
-          <div v-if="mintId == 0" class="webgl-logo"></div>
-          <div v-if="mintId != 0" style="float: left;"><a style="color: white;" v-bind:href="'https://opensea.io/assets/' + contract + '/' + mintId">View your NFT on OpenSea!</a></div>
-          <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
-          <div class="title">DragonMound</div>
+      <div class="container" v-if="hasWallet">
+        <div class="row">
+          <div class="col">
+            <h4>How To Play:</h4>
+            <ul>
+              <li>You are a dragon.</li>
+              <li>Don't run out of health or gold.</li>
+              <li>Kill the 5 baddies. Collect an NFT.</li>
+            </ul>
+          </div>
+          <div class="col" style="text-align: center;">
+            <h1>DragonMound.com <br />by <a class="btn btn-outline-primary" href="https://www.youtube.com/c/SharkJets/videos">SharkJets</a></h1>
+          </div>
+          <div class="col">            
+            <ul>
+              <li><span class="btn btn-danger">Attack the enemy</span> - costs 1 gold.</li>
+              <li><span class="btn btn-success">Heal yourself</span> - costs 2 gold.</li>
+            </ul>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-md-12" style="text-align: center;">
+            <div id="unityContainer" style="width: 960px; height: 600px; margin: auto;"></div>        
+            <div class="footer">
+              <div v-if="mintId != 0" style="margin:auto; padding: 2px;"><a class="btn btn-primary" v-bind:href="'https://opensea.io/assets/' + contract + '/' + mintId">View your NFT on OpenSea!</a></div>          
+            </div>
+          </div>
+        </div>      
       </div>
     </div>
     <script src="js/index.js"></script>
