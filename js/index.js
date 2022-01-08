@@ -41,45 +41,54 @@ const App = {
       }  
     },
     showAddress(){
+      if(this.account == null){
+        app.sendError('Your wallet address is null <br /> Please check your wallet, refresh and try again.');
+        return;
+      }
       unityInstance.SendMessage('JsListener', 'SetWalletAddress', `Wallet: ${this.account}`);
       app.getGoldmine();
     },
     async addPlayer(){
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
-      app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      app.gameContract.addPlayer().then(
-        (response)=>{
-          let confirmations = 0;
-
-          let interval = setInterval(async ()=>{
-            let txn_test = await provider.getTransaction(response.hash);
-            if(txn_test && txn_test.confirmations) confirmations = txn_test.confirmations;
-            
-            if(confirmations > 0) {   
-              clearInterval(interval);                      
-              app.getStats();
-            }
-          }, 2000);
-        },
-        (err)=>{
-          console.log('error');
-          unityInstance.SendMessage('JsListener', 'ResetStart');
-        }
-      );
+      app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);      
+      try {
+        let response = await app.gameContract.addPlayer();
+        const receipt = await response.wait();
+        app.getStats();
+      } catch (error) {
+        console.log(error);
+        app.sendRestart();
+      }
     }, 
-    async getStats(){
+    sendRestart(){
+      unityInstance.SendMessage('JsListener', 'ResetStart');
+    },
+    sendError(msg=null){
+      let err = msg === null ? 'Something went horribly wrong. <br />Refresh and start over.' : msg;
+      Swal.fire({
+        title: 'Error!',
+        html: err,
+        icon: 'error',
+        confirmButtonText: 'Okie dokie!'
+      })
+    },
+    async getStats(hasWon=false){
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       app.gameContract.getStats().then(
         (stats)=>{
-          let level =  new BigNumber(stats.level._hex).toNumber();
-          let gold =  new BigNumber(stats.gold._hex).toNumber();
-          let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
-          let mintId =  new BigNumber(stats.mintId._hex).toNumber();
-          let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
-          unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
+          if(!hasWon){ 
+            let level =  new BigNumber(stats.level._hex).toNumber();
+            let gold =  new BigNumber(stats.gold._hex).toNumber();
+            let hasWon =  new BigNumber(stats.hasWon._hex).toNumber();
+            let mintId =  new BigNumber(stats.mintId._hex).toNumber();
+            let playerstats = {level: level, gold: gold, hasWon: hasWon, mintId: mintId};
+            unityInstance.SendMessage('JsListener', 'ShowInteractables', JSON.stringify(playerstats));
+          }else{
+            unityInstance.SendMessage('JsListener', 'MintSuccess');
+          }
         }, 
         (err)=>{
           console.log(err);
@@ -124,52 +133,29 @@ const App = {
       let signer = provider.getSigner();
       let gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
       let cost = await gameContract.getCost();
-      gameContract.mintyFresh({value: cost}).then(
-        (response)=>{
-          let confirmations = 0;
 
-          let interval = setInterval(async ()=>{
-            let txn_test = await provider.getTransaction(response.hash);
-            confirmations = txn_test.confirmations;
-            if(confirmations > 0) {   
-              clearInterval(interval);              
-              app.getStats().then(
-                (stats)=>{
-                  unityInstance.SendMessage('JsListener', 'MintSuccess');
-                }, 
-                (err)=>{
-                  console.log(err);
-                }
-              );
-            }
-          }, 2000);
-        },
-        (err)=>{
-          console.log(err);
-        });
+      try {
+        let response = await gameContract.mintyFresh({value: cost});
+        const receipt = await response.wait();
+        app.getStats(true);
+      } catch (error) {
+        console.log(error);
+        app.sendError();
+      }; 
     },        
     async setWin(level, gold){
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       app.gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      app.gameContract.levelUp(level, gold).then(
-        (response)=>{
-          let confirmations = 0;
 
-          let interval = setInterval(async ()=>{
-            let txn_test = await provider.getTransaction(response.hash);
-            if(txn_test && txn_test.confirmations) confirmations = txn_test.confirmations;
-
-            if(confirmations > 0) {   
-              clearInterval(interval);                      
-              app.getStats();
-            }
-          }, 2000);
-        },
-        (err)=>{
-          console.log(err);
-        }
-      );
+      try {
+        let response = await app.gameContract.levelUp(level, gold);
+        const receipt = await response.wait();
+        app.getStats();
+      } catch (error) {
+        console.log(error);
+        app.sendError();
+      }      
     },
     async addPolygonNetwork(){
       try {
