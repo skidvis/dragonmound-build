@@ -3,7 +3,7 @@ const App = {
     return {
       wallet: null,
       account: null,
-      contract: '0x76C4eAF3fFECcD17AC22F5E5A098dD3899221f19',
+      contract: '0x4f0C562CaA5eECd26803fB4779940D13F293E714',
       mintId: 0,
       hasWallet: false,
       gameContract: null
@@ -132,10 +132,9 @@ const App = {
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       let signer = provider.getSigner();
       let gameContract = new ethers.Contract(app.contract,myEpicGame.abi,signer);
-      let cost = await gameContract.getCost();
 
       try {
-        let response = await gameContract.mintyFresh({value: cost});
+        let response = await gameContract.mintyFresh();
         const receipt = await response.wait();
         app.getStats(true);
       } catch (error) {
